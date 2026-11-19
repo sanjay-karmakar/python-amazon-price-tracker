@@ -29,7 +29,11 @@ header = {
 }
 
 practice_url = "https://appbrewery.github.io/instant_pot/"
-response = requests.get(practice_url, headers=header)
+live_url = "https://www.amazon.com/dp/B075CYMYK6?lv=shuf&channelId=751&ref_=cm_sw_r_cp_ud_ct_FM9M699VKHTT47YD50Q6&plpRedirect=mhFallback&th=1"
+
+url = live_url
+
+response = requests.get(url, headers=header)
 response.raise_for_status()
 
 
@@ -40,7 +44,10 @@ soup = BeautifulSoup(response.text, "html.parser")
 # Extract the price ($99.99 -> 99.99 as a float)
 price_whole = soup.find(class_="a-price-whole").get_text()
 price_fraction = soup.find(class_="a-price-fraction").get_text()
-price_as_float = float(f"{price_whole}{price_fraction}")
+
+# Remove any commas before converting to float
+price_without_comma = f"{price_whole}{price_fraction}".replace(",", "")
+price_as_float = float(price_without_comma)
 
 # print(price_as_float)  # Output: 99.99
 
@@ -59,7 +66,7 @@ if price_as_float < BUY_PRICE:
         connection.sendmail(
             from_addr=FROM_EMAIL,
             to_addrs=TO_EMAIL,
-            msg=f"Subject:Amazon Price Alert!\n\n{message}\n{practice_url}".encode("utf-8")
+            msg=f"Subject:Amazon Price Alert!\n\n{message}\n{url}".encode("utf-8")
         )
     print("Mail sent successfully.")
         
